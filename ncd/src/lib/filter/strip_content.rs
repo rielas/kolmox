@@ -1,9 +1,9 @@
-use super::StripHtml;
+use super::HtmlFilter;
 use scraper::ElementRef;
 
 pub struct StripContent {}
 
-impl StripHtml for StripContent {
+impl HtmlFilter for StripContent {
     fn strip_element(&self, element: &ElementRef<'_>) -> String {
         let tag_name = element.value().name();
         let mut attributes = String::new();
@@ -32,7 +32,7 @@ mod tests {
     </body>
 </html>"#;
         let stripper = StripContent {};
-        let stripped = stripper.strip_html(page);
+        let stripped = stripper.process_document(page);
         assert_eq!(
             stripped,
             r#"<html><head><title></title></head><body><p class="hello"></p></body></html>"#

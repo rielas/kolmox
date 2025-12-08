@@ -1,9 +1,9 @@
-use super::StripHtml;
+use super::HtmlFilter;
 use scraper::ElementRef;
 
 pub struct FilterAttributes {}
 
-impl StripHtml for FilterAttributes {
+impl HtmlFilter for FilterAttributes {
     fn strip_element(&self, element: &ElementRef<'_>) -> String {
         let tag_name = element.value().name();
         let mut attributes = String::new();

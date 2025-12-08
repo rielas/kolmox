@@ -1,13 +1,13 @@
 pub mod compress;
-mod strip;
+mod filter;
 
 use crate::compress::Compressor;
-use strip::StripHtml;
+use filter::HtmlFilter;
 
 pub fn calculate(page_a: &str, page_b: &str) -> f64 {
-    let stripper = strip::filter_attributes::FilterAttributes {};
-    let stripped_a = stripper.strip_html(page_a);
-    let stripped_b = stripper.strip_html(page_b);
+    let stripper = filter::filter_attributes::FilterAttributes {};
+    let stripped_a = stripper.process_document(page_a);
+    let stripped_b = stripper.process_document(page_b);
     let compressor = compress::brotli::CompressBrotli::recommended();
     compressor.get_distance(&stripped_a, &stripped_b)
 }
