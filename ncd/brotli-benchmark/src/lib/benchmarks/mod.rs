@@ -1,4 +1,4 @@
-use core::calculate;
+use core::brotli_default_filter_attributes;
 use std::{
     collections::BTreeMap,
     hash,
@@ -45,7 +45,7 @@ impl Cache {
             }
         }
 
-        let result = calculate(&page_a, &page_b);
+        let result = brotli_default_filter_attributes(&page_a, &page_b);
         let mut write_guard = self.cache.write().unwrap();
         use std::collections::btree_map::Entry;
 

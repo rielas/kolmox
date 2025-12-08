@@ -4,7 +4,7 @@ mod filter;
 use crate::compress::Compressor;
 use filter::HtmlFilter;
 
-pub fn calculate(page_a: &str, page_b: &str) -> f64 {
+pub fn brotli_default_filter_attributes(page_a: &str, page_b: &str) -> f64 {
     let stripper = filter::filter_attributes::FilterAttributes::default();
     let stripped_a = stripper.process_document(page_a);
     let stripped_b = stripper.process_document(page_b);
@@ -35,6 +35,6 @@ mod tests {
         <p class="hello">Good bye, world!</p>
     </body>
 </html>"#;
-        assert_approx_eq!(calculate(page_a, page_b), 0.0, 0.1);
+        assert_approx_eq!(brotli_default_filter_attributes(page_a, page_b), 0.0, 0.1);
     }
 }

@@ -1,6 +1,6 @@
 use super::get_dataset_path;
 use crate::{benchmarks::Cache, dataset};
-use core::calculate;
+use core::brotli_default_filter_attributes;
 
 pub fn triangle_inequality(cache: &mut Cache, dataset_name: &str) {
     use itertools::Itertools;
@@ -44,7 +44,7 @@ mod tests {
         benchmarks::get_dataset_path,
         dataset::{self, Dataset},
     };
-    use core::calculate;
+    use core::brotli_default_filter_attributes;
 
     #[test]
     fn test_triangle_inequality() {
@@ -59,9 +59,9 @@ mod tests {
         let page_c = dataset
             .get_content("https://www.imdb.com/video/vi998032153/?ref_=ttvg_vi_3")
             .unwrap();
-        let d_ac = calculate(&page_a, &page_c);
-        let d_ab = calculate(&page_a, &page_b);
-        let d_bc = calculate(&page_b, &page_c);
+        let d_ac = brotli_default_filter_attributes(&page_a, &page_c);
+        let d_ab = brotli_default_filter_attributes(&page_a, &page_b);
+        let d_bc = brotli_default_filter_attributes(&page_b, &page_c);
         println!("d_ab = {d_ab}, d_ac = {d_ac}, d_bc = {d_bc}");
         assert!(d_ac + d_bc >= d_ab);
     }

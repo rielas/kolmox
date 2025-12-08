@@ -1,5 +1,6 @@
 pub mod filter_attributes;
 pub mod strip_content;
+pub mod extract_main;
 
 use scraper::{ElementRef, Html};
 
@@ -43,6 +44,15 @@ impl FilterPipeline {
     pub fn then<F: HtmlFilter + 'static>(mut self, filter: F) -> Self {
         self.filters
             .push(Box::new(move |html| filter.process_document(&html)));
+        self
+    }
+
+    // Allow adding plain `Fn(String) -> String` stages (e.g. extract_main::extract_main)
+    pub fn then_fn<F>(mut self, f: F) -> Self
+    where
+        F: Fn(String) -> String + 'static,
+    {
+        self.filters.push(Box::new(f));
         self
     }
 

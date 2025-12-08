@@ -1,7 +1,7 @@
 use benchmark::benchmarks::distance_matrix::heatmap;
 use benchmark::benchmarks::triangle_inequality;
 use benchmark::dataset;
-use core::calculate;
+use core::brotli_default_filter_attributes;
 use core::compress::{brotli::CompressBrotli, Compressor};
 use plotly::common::{AxisSide, Title};
 use plotly::layout::Axis;
