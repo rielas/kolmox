@@ -12,7 +12,7 @@ name = "benchmark"
 path = "src/main.rs"
 
 [dependencies]
-core = { path = "../src/lib" }
+kolmox = { path = "../src/lib" }
 plotters = { version = "0.3", default-features = false, features = [
     "evcxr",
     "all_series",

@@ -7,7 +7,6 @@ use rayon::prelude::*;
 
 use crate::benchmarks::get_dataset_path;
 use crate::{benchmarks::Cache, dataset};
-use core::brotli_default_filter_attributes;
 
 pub fn heatmap(cache: &mut Cache, dataset_name: &str) {
     let dataset =

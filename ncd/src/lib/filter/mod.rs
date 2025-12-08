@@ -1,8 +1,12 @@
+pub mod extract_main;
 pub mod filter_attributes;
 pub mod strip_content;
-pub mod extract_main;
 
 use scraper::{ElementRef, Html};
+
+pub trait Processor {
+    fn process_document(&self, page: &str) -> String;
+}
 
 pub trait HtmlFilter {
     fn process_document(&self, page: &str) -> String {
@@ -30,6 +34,12 @@ pub trait HtmlFilter {
     }
 }
 
+impl<T: HtmlFilter + ?Sized> Processor for T {
+    fn process_document(&self, page: &str) -> String {
+        self.process_document(page)
+    }
+}
+
 pub struct FilterPipeline {
     filters: Vec<Box<dyn Fn(String) -> String>>,
 }
@@ -41,18 +51,9 @@ impl FilterPipeline {
         }
     }
 
-    pub fn then<F: HtmlFilter + 'static>(mut self, filter: F) -> Self {
+    pub fn then<F: Processor + 'static>(mut self, filter: F) -> Self {
         self.filters
             .push(Box::new(move |html| filter.process_document(&html)));
-        self
-    }
-
-    // Allow adding plain `Fn(String) -> String` stages (e.g. extract_main::extract_main)
-    pub fn then_fn<F>(mut self, f: F) -> Self
-    where
-        F: Fn(String) -> String + 'static,
-    {
-        self.filters.push(Box::new(f));
         self
     }
 

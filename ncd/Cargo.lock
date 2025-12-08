@@ -105,8 +105,8 @@ dependencies = [
 name = "benchmark"
 version = "0.1.0"
 dependencies = [
- "core",
  "itertools",
+ "kolmox",
  "plotly",
  "plotters",
  "rayon",
@@ -178,15 +178,6 @@ dependencies = [
  "num-traits",
  "serde",
  "windows-link",
-]
-
-[[package]]
-name = "core"
-version = "0.1.2"
-dependencies = [
- "assert_approx_eq",
- "brotli",
- "scraper",
 ]
 
 [[package]]
@@ -522,6 +513,15 @@ checksum = "1cfaf33c695fc6e08064efbc1f72ec937429614f25eef83af942d0e227c3a28f"
 dependencies = [
  "once_cell",
  "wasm-bindgen",
+]
+
+[[package]]
+name = "kolmox"
+version = "0.1.2"
+dependencies = [
+ "assert_approx_eq",
+ "brotli",
+ "scraper",
 ]
 
 [[package]]

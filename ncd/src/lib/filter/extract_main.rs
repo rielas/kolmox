@@ -1,43 +1,42 @@
-use scraper::{ElementRef, Html, Selector};
+use super::Processor;
+use scraper::{Html, Selector};
 
-pub fn extract_main(html: String) -> String {
-    let document = Html::parse_document(&html);
-    let selector = Selector::parse("main").unwrap();
+pub struct ExtractMain {}
 
-    if let Some(main_elem) = document.select(&selector).next() {
-        let mut result = String::new();
-        traverse_element(&main_elem, &mut result);
-        result
-    } else {
-        String::new()
-    }
-}
+impl Processor for ExtractMain {
+    fn process_document(&self, page: &str) -> String {
+        let document = Html::parse_document(&page);
+        let selector = Selector::parse("main").unwrap();
 
-fn strip_element(element: &ElementRef<'_>) -> String {
-    let tag_name = element.value().name();
-    let attrs = element
-        .value()
-        .attrs()
-        .map(|(k, v)| format!(" {}=\"{}\"", k, v))
-        .collect::<String>();
-
-    if element.has_children() {
-        format!("<{}{}>", tag_name, attrs)
-    } else {
-        format!("<{}{} />", tag_name, attrs)
-    }
-}
-
-fn traverse_element(element: &ElementRef<'_>, result: &mut String) {
-    let begin = strip_element(element);
-    result.push_str(&begin);
-
-    if element.has_children() {
-        for child in element.child_elements() {
-            traverse_element(&child, result);
+        if let Some(main_elem) = document.select(&selector).next() {
+            let inner_html = main_elem.inner_html();
+            inner_html.trim().to_string()
+        } else {
+            String::new()
         }
+    }
+}
 
-        let tag_name = element.value().name();
-        result.push_str(&format!("</{}>", tag_name));
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_extract_main() {
+        let page = r#"<html>
+    <head>
+        <title>Test</title>
+    </head>
+    <body>
+        <header>This is the header</header>
+        <main>
+            <p>This is the main content.</p>
+        </main>
+        <footer>This is the footer</footer>
+    </body>
+</html>"#;
+        let extractor = ExtractMain {};
+        let extracted = extractor.process_document(page);
+        assert_eq!(extracted, r#"<p>This is the main content.</p>"#);
     }
 }

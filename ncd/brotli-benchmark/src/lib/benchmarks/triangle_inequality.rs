@@ -1,6 +1,5 @@
 use super::get_dataset_path;
 use crate::{benchmarks::Cache, dataset};
-use core::brotli_default_filter_attributes;
 
 pub fn triangle_inequality(cache: &mut Cache, dataset_name: &str) {
     use itertools::Itertools;
@@ -44,7 +43,7 @@ mod tests {
         benchmarks::get_dataset_path,
         dataset::{self, Dataset},
     };
-    use core::brotli_default_filter_attributes;
+    use kolmox::brotli_default_filter_attributes;
 
     #[test]
     fn test_triangle_inequality() {

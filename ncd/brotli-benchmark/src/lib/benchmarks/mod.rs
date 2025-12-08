@@ -1,7 +1,6 @@
-use core::brotli_default_filter_attributes;
+use kolmox::brotli_default_filter_attributes;
 use std::{
     collections::BTreeMap,
-    hash,
     path::PathBuf,
     sync::{Arc, RwLock},
 };

@@ -1,5 +1,5 @@
 pub mod compress;
-mod filter;
+pub mod filter;
 
 use crate::compress::Compressor;
 use filter::HtmlFilter;
