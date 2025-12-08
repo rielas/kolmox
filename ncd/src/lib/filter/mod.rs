@@ -28,3 +28,53 @@ pub trait HtmlFilter {
         }
     }
 }
+
+pub struct FilterPipeline {
+    filters: Vec<Box<dyn Fn(String) -> String>>,
+}
+
+impl FilterPipeline {
+    pub fn new() -> Self {
+        Self {
+            filters: Vec::new(),
+        }
+    }
+
+    pub fn then<F: HtmlFilter + 'static>(mut self, filter: F) -> Self {
+        self.filters
+            .push(Box::new(move |html| filter.process_document(&html)));
+        self
+    }
+
+    pub fn apply(&self, html: &str) -> String {
+        self.filters.iter().fold(html.to_string(), |acc, f| f(acc))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_filter_pipeline() {
+        let page = r#"<html>
+    <head>
+        <title>Test</title>
+    </head>
+    <body>
+        <p class="hello">Hello, world!</p>
+    </body>
+</html>"#;
+
+        let pipeline = FilterPipeline::new()
+            .then(strip_content::StripContent {})
+            .then(filter_attributes::FilterAttributes {});
+
+        let result = pipeline.apply(page);
+
+        assert_eq!(
+            result,
+            r#"<html><head><title /></head><body><p class="hello" /></body></html>"#
+        );
+    }
+}

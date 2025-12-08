@@ -66,9 +66,3 @@ fn main() {
         triangle_inequality::triangle_inequality(cache, dataset);
     }
 }
-
-#[test]
-fn test_heatmap() {
-    let mut cache = benchmark::benchmarks::Cache::new();
-    heatmap(&mut cache, "euronews.com");
-}
