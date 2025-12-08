@@ -68,7 +68,7 @@ mod tests {
 
         let pipeline = FilterPipeline::new()
             .then(strip_content::StripContent {})
-            .then(filter_attributes::FilterAttributes {});
+            .then(filter_attributes::FilterAttributes::default());
 
         let result = pipeline.apply(page);
 

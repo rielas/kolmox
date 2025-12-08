@@ -5,7 +5,7 @@ use crate::compress::Compressor;
 use filter::HtmlFilter;
 
 pub fn calculate(page_a: &str, page_b: &str) -> f64 {
-    let stripper = filter::filter_attributes::FilterAttributes {};
+    let stripper = filter::filter_attributes::FilterAttributes::default();
     let stripped_a = stripper.process_document(page_a);
     let stripped_b = stripper.process_document(page_b);
     let compressor = compress::brotli::CompressBrotli::recommended();
