@@ -1,44 +1,23 @@
+use indicatif::ProgressBar;
 use plotly::{
     common::{AxisSide, Title},
     layout::Axis,
     HeatMap, Layout, Plot,
 };
 use rayon::prelude::*;
+use tracing::info;
 
 use crate::benchmarks::get_dataset_path;
 use crate::{benchmarks::Cache, dataset};
 
-pub fn heatmap(cache: &mut Cache, dataset_name: &str) {
-    let dataset =
-        dataset::Dataset::new(get_dataset_path(dataset_name)).expect("Failed to load dataset");
-    let entries = dataset.entries();
-    let page_names = entries
-        .iter()
-        .map(|entry| entry.get_name())
-        .collect::<Vec<String>>();
+type DistanceMatrix = Vec<Vec<f64>>;
+type ComputeResult = Result<(Vec<String>, DistanceMatrix), Box<dyn std::error::Error>>;
 
-    let heatmap = HeatMap::new(
-        page_names.clone(),
-        page_names.clone(),
-        entries
-            .par_iter()
-            .map(|entry_a| {
-                entries
-                    .iter()
-                    .map(|entry_b| {
-                        println!(
-                            "Calculating distance between {} and {}",
-                            entry_a.url, entry_b.url
-                        );
-                        cache.calculate(
-                            &entry_a.get_content().unwrap(),
-                            &entry_b.get_content().unwrap(),
-                        )
-                    })
-                    .collect::<Vec<f64>>()
-            })
-            .collect::<Vec<Vec<f64>>>(),
-    );
+pub fn heatmap(cache: &mut Cache, dataset_name: &str) -> Plot {
+    let (page_names, matrix) =
+        compute_distance_matrix(cache, dataset_name).expect("Failed to compute distance matrix");
+
+    let heatmap = HeatMap::new(page_names.clone(), page_names.clone(), matrix);
 
     let mut plot = Plot::new();
     plot.add_trace(heatmap);
@@ -67,5 +46,50 @@ pub fn heatmap(cache: &mut Cache, dataset_name: &str) {
         );
     plot.set_layout(layout);
 
-    plot.show();
+    plot
+}
+
+pub fn compute_distance_matrix(
+    cache: &mut Cache,
+    dataset_name: &str,
+) -> ComputeResult {
+    let dataset = dataset::Dataset::new(get_dataset_path(dataset_name))?;
+    let entries = dataset.entries();
+    let page_names = entries
+        .iter()
+        .map(|entry| entry.get_name())
+        .collect::<Vec<String>>();
+    info!(
+        dataset = dataset_name,
+        rows = page_names.len(),
+        "Starting distance matrix computation"
+    );
+
+    let pb = ProgressBar::new(page_names.len() as u64);
+    pb.set_message("computing rows");
+
+    let matrix = entries
+        .par_iter()
+        .map(|entry_a| {
+            let row = entries
+                .iter()
+                .map(|entry_b| {
+                    cache.calculate(
+                        &entry_a.get_content().unwrap(),
+                        &entry_b.get_content().unwrap(),
+                    )
+                })
+                .collect::<Vec<f64>>();
+            pb.inc(1);
+            row
+        })
+        .collect::<Vec<Vec<f64>>>();
+
+    pb.finish_and_clear();
+    info!(
+        dataset = dataset_name,
+        "Finished distance matrix computation"
+    );
+
+    Ok((page_names, matrix))
 }

@@ -13,11 +13,15 @@ path = "src/main.rs"
 
 [dependencies]
 kolmox = { path = "../src/lib" }
-plotters = { version = "0.3", default-features = false, features = [
-    "evcxr",
-    "all_series",
-] }
 plotly = "0.13"
 urlencoding = "2.1"
 rayon = "1.11"
 itertools = "0.14"
+tracing = "0.1"
+tracing-subscriber = "0.3"
+indicatif = { version = "0.18", features = ["rayon"] }
+clap = { version = "4.5", features = ["derive"] }
+
+[dev-dependencies]
+assert_approx_eq = "1.1"
+

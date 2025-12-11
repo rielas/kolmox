@@ -41,7 +41,7 @@ pub fn triangle_inequality(cache: &mut Cache, dataset_name: &str) {
 mod tests {
     use crate::{
         benchmarks::get_dataset_path,
-        dataset::{self, Dataset},
+        dataset::{self},
     };
     use kolmox::brotli_default_filter_attributes;
 

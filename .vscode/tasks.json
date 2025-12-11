@@ -1,0 +1,19 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build brotli-benchmark",
+      "type": "shell",
+      "command": "cargo",
+      "args": ["build", "-p", "benchmark"],
+      "options": {
+        "cwd": "${workspaceFolder}/ncd"
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "problemMatcher": ["$rustc"]
+    }
+  ]
+}

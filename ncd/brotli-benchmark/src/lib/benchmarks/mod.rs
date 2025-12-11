@@ -7,9 +7,16 @@ use std::{
 
 pub mod distance_matrix;
 pub mod triangle_inequality;
+pub mod wiki_vs_grok;
 
 pub struct Cache {
     cache: Arc<RwLock<BTreeMap<(u64, u64), f64>>>,
+}
+
+impl Default for Cache {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl Cache {
@@ -44,7 +51,7 @@ impl Cache {
             }
         }
 
-        let result = brotli_default_filter_attributes(&page_a, &page_b);
+        let result = brotli_default_filter_attributes(page_a, page_b);
         let mut write_guard = self.cache.write().unwrap();
         use std::collections::btree_map::Entry;
 

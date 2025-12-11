@@ -53,6 +53,11 @@ impl Entry {
             "news_article" => "📰".to_string(),
             "tag" => "🏷️".to_string(),
             "special" => "✨".to_string(),
+            "neutral" => "".to_string(),
+            "biased" => "😡".to_string(),
+            "grok" => "🤖".to_string(),
+            "wiki" => "📚".to_string(),
+            "" => "".to_string(),
             _ => panic!("Unknown page type: {}", pt),
         }
     }
@@ -122,7 +127,7 @@ impl Dataset {
 
     pub fn get_file_path(&self, url: &str) -> Option<PathBuf> {
         if let Some(page_name) = self.url_to_filename(url) {
-            let extensions = [".txt", ".md", ".html", ".wiki", ""];
+            let extensions = [".html", ".txt", ".md", ".wiki", ""];
 
             for ext in &extensions {
                 let filename = format!("{}{}", page_name, ext);
@@ -166,8 +171,6 @@ impl Dataset {
 
 #[cfg(test)]
 mod tests {
-    use plotters::data;
-
     use super::*;
 
     fn get_dataset_path(directory: &str) -> PathBuf {

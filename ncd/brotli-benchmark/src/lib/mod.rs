@@ -1,10 +1,13 @@
 pub mod benchmarks;
 pub mod dataset;
 
-extern crate plotters;
-
-use plotters::evcxr::SVGWrapper;
-use plotters::prelude::*;
+use plotly::{
+    common::Marker,
+    common::Mode,
+    common::Title,
+    layout::{Axis, AxisType},
+    Layout, Plot, Scatter,
+};
 use std::time::Duration;
 
 #[derive(Debug, Clone)]
@@ -15,79 +18,102 @@ pub struct BenchmarkResult {
     pub duration: Duration,
 }
 
-#[allow(dead_code)]
-pub fn point_series(results: &[BenchmarkResult]) -> SVGWrapper {
-    evcxr_figure((800, 600), |root| {
-        root.fill(&WHITE)?;
-        let mut chart = ChartBuilder::on(&root)
-            .caption(
-                "NCD Brotli: distance and compression time",
-                ("sans-serif", 40),
-            )
-            .margin(10)
-            .x_label_area_size(50)
-            .y_label_area_size(60)
-            .build_cartesian_2d(
-                (results
-                    .iter()
-                    .map(|r| r.duration.as_secs_f64())
-                    .filter(|&x| x > 0.0)
-                    .fold(f64::INFINITY, f64::min)
-                    * 0.9
-                    ..results
-                        .iter()
-                        .map(|r| r.duration.as_secs_f64())
-                        .fold(0.0, f64::max)
-                        * 1.1)
-                    .log_scale(),
-                (results
-                    .iter()
-                    .map(|r| r.compression_ratio)
-                    .filter(|&x| x > 0.0)
-                    .fold(f64::INFINITY, f64::min)
-                    * 0.9
-                    ..results
-                        .iter()
-                        .map(|r| r.compression_ratio)
-                        .fold(0.0, f64::max)
-                        * 1.1)
-                    .log_scale(),
-            )?;
+pub fn point_series(results: &[BenchmarkResult]) -> Plot {
+    let mut x0: Vec<f64> = Vec::new();
+    let mut y0: Vec<f64> = Vec::new();
+    let mut t0: Vec<String> = Vec::new();
 
-        chart
-            .configure_mesh()
-            .x_desc("Compression Time (seconds). The lower, the better")
-            .y_desc("Distance. The lower, the better")
-            .draw()?;
+    let mut x1: Vec<f64> = Vec::new();
+    let mut y1: Vec<f64> = Vec::new();
+    let mut t1: Vec<String> = Vec::new();
 
-        for result in results {
-            let color = match result.quality {
-                0..=2 => &RED,
-                3..=5 => &BLUE,
-                6..=8 => &GREEN,
-                _ => &MAGENTA,
-            };
+    let mut x2: Vec<f64> = Vec::new();
+    let mut y2: Vec<f64> = Vec::new();
+    let mut t2: Vec<String> = Vec::new();
 
-            chart
-                .draw_series(PointSeries::of_element(
-                    vec![(result.duration.as_secs_f64(), result.compression_ratio)],
-                    5,
-                    color,
-                    &|c, s, st| {
-                        EmptyElement::at(c)
-                            + Circle::new((0, 0), s, st.filled())
-                            + Text::new(
-                                format!("{}, {}", result.lg_window_size, result.quality),
-                                (0, 10),
-                                ("sans-serif", 10),
-                            )
-                    },
-                ))?
-                .label(format!("Q{}", result.quality))
-                .legend(move |(x, y)| PathElement::new(vec![(x, y), (x + 10, y)], color));
+    let mut x3: Vec<f64> = Vec::new();
+    let mut y3: Vec<f64> = Vec::new();
+    let mut t3: Vec<String> = Vec::new();
+
+    for r in results {
+        let xs = r.duration.as_secs_f64();
+        let ys = r.compression_ratio;
+        let txt = format!("lg_window: {}, quality: {}", r.lg_window_size, r.quality);
+
+        match r.quality {
+            0..=2 => {
+                x0.push(xs);
+                y0.push(ys);
+                t0.push(txt);
+            }
+            3..=5 => {
+                x1.push(xs);
+                y1.push(ys);
+                t1.push(txt);
+            }
+            6..=8 => {
+                x2.push(xs);
+                y2.push(ys);
+                t2.push(txt);
+            }
+            _ => {
+                x3.push(xs);
+                y3.push(ys);
+                t3.push(txt);
+            }
         }
+    }
 
-        chart.configure_mesh().draw()?;
-        Ok(())
-    })
+    let mut plot = Plot::new();
+
+    if !x0.is_empty() {
+        let trace = Scatter::new(x0, y0)
+            .mode(Mode::Markers)
+            .hover_text_array(t0)
+            .name("Q 0-2")
+            .marker(Marker::new().color("red").size(8));
+        plot.add_trace(trace);
+    }
+
+    if !x1.is_empty() {
+        let trace = Scatter::new(x1, y1)
+            .mode(Mode::Markers)
+            .hover_text_array(t1)
+            .name("Q 3-5")
+            .marker(Marker::new().color("blue").size(8));
+        plot.add_trace(trace);
+    }
+
+    if !x2.is_empty() {
+        let trace = Scatter::new(x2, y2)
+            .mode(Mode::Markers)
+            .hover_text_array(t2)
+            .name("Q 6-8")
+            .marker(Marker::new().color("green").size(8));
+        plot.add_trace(trace);
+    }
+
+    if !x3.is_empty() {
+        let trace = Scatter::new(x3, y3)
+            .mode(Mode::Markers)
+            .hover_text_array(t3)
+            .name("Q 9+")
+            .marker(Marker::new().color("magenta").size(8));
+        plot.add_trace(trace);
+    }
+
+    let layout = Layout::new()
+        .title("NCD Brotli: distance and compression time")
+        .x_axis(Axis::new().type_(AxisType::Log).title(Title::with_text(
+            "Compression Time (seconds). The lower, the better",
+        )))
+        .y_axis(
+            Axis::new()
+                .type_(AxisType::Log)
+                .title(Title::with_text("Distance. The lower, the better")),
+        );
+
+    plot.set_layout(layout);
+
+    plot
 }
