@@ -1,11 +1,11 @@
 use super::HtmlFilter;
 use scraper::ElementRef;
 
-pub struct FilterAttributes {
+pub struct FilterHtmlAttributes {
     attributes: Vec<String>,
 }
 
-impl FilterAttributes {
+impl FilterHtmlAttributes {
     pub fn new<S: Into<String>>(attributes: Vec<S>) -> Self {
         Self {
             attributes: attributes.into_iter().map(|s| s.into()).collect(),
@@ -13,7 +13,7 @@ impl FilterAttributes {
     }
 }
 
-impl Default for FilterAttributes {
+impl Default for FilterHtmlAttributes {
     fn default() -> Self {
         Self {
             attributes: vec!["id".into(), "class".into()],
@@ -21,7 +21,7 @@ impl Default for FilterAttributes {
     }
 }
 
-impl HtmlFilter for FilterAttributes {
+impl HtmlFilter for FilterHtmlAttributes {
     fn strip_element(&self, element: &ElementRef<'_>) -> String {
         let tag_name = element.value().name();
         let mut attributes = String::new();
