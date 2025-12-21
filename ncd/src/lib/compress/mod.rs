@@ -2,7 +2,39 @@ pub mod brotli;
 
 use std::cmp;
 
+pub trait Cache: Default + Send + Sync {
+    fn hash_string(&self, s: &str) -> u64;
+
+    fn get_length_by_hash(&self, hash: u64) -> Option<usize>;
+
+    fn store_length_by_hash(&self, hash: u64, length: usize);
+}
+
+#[derive(Clone, Default)]
+pub struct NoCache;
+
+impl Cache for NoCache {
+    fn hash_string(&self, s: &str) -> u64 {
+        use std::collections::hash_map::DefaultHasher;
+        use std::hash::{Hash, Hasher};
+
+        let mut hasher = DefaultHasher::new();
+        s.hash(&mut hasher);
+        hasher.finish()
+    }
+
+    fn get_length_by_hash(&self, _hash: u64) -> Option<usize> {
+        None
+    }
+
+    fn store_length_by_hash(&self, _hash: u64, _length: usize) {}
+}
+
 pub trait Compressor {
+    type CacheType: Cache;
+
+    fn cache(&self) -> &Self::CacheType;
+
     fn get_distance(&self, page_a: &str, page_b: &str) -> f64 {
         let length_combined = self.get_combined_length(page_a, page_b);
         let a_compressed = self.get_compressed_size(page_a);
@@ -22,9 +54,21 @@ pub trait Compressor {
 
     fn get_combined_length(&self, page_a: &str, page_b: &str) -> usize {
         let page_ab = page_a.to_owned() + page_b;
-        let length_combined_a_b = self.get_compressed_size(&page_ab);
+        let hash_ab = self.cache().hash_string(&page_ab);
+        let page_ba = page_b.to_owned() + page_a;
+        let hash_ba = self.cache().hash_string(&page_ba);
 
-        let length_combined_b_a = self.get_compressed_size(&(page_b.to_owned() + page_a));
-        cmp::min(length_combined_a_b, length_combined_b_a)
+        if let Some(cached) = self.cache().get_length_by_hash(hash_ab) {
+            cached
+        } else if let Some(cached) = self.cache().get_length_by_hash(hash_ba) {
+            cached
+        } else {
+            let length_combined_a_b = self.get_compressed_size(&page_ab);
+            let length_combined_b_a = self.get_compressed_size(&page_ba);
+            let res = cmp::min(length_combined_a_b, length_combined_b_a);
+            self.cache().store_length_by_hash(hash_ab, res);
+            self.cache().store_length_by_hash(hash_ba, res);
+            res
+        }
     }
 }

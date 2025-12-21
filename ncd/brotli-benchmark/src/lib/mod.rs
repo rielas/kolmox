@@ -1,7 +1,7 @@
 pub mod benchmarks;
 pub mod dataset;
 
-use kolmox::compress::Compressor;
+use kolmox::compress::{Compressor, NoCache};
 use kolmox::filter::HtmlFilter;
 use plotly::{
     common::Marker,
@@ -16,7 +16,7 @@ pub fn brotli_filter_attributes(page_a: &str, page_b: &str) -> f64 {
     let stripper = kolmox::filter::filter_attributes::FilterHtmlAttributes::default();
     let stripped_a = stripper.process_document(page_a);
     let stripped_b = stripper.process_document(page_b);
-    let compressor = kolmox::compress::brotli::CompressBrotli::recommended();
+    let compressor = kolmox::compress::brotli::CompressBrotli::<NoCache>::recommended();
     compressor.get_distance(&stripped_a, &stripped_b)
 }
 

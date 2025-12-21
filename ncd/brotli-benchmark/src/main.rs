@@ -1,7 +1,5 @@
-use benchmark::benchmarks::distance_matrix::heatmap;
-use benchmark::benchmarks::triangle_inequality;
-use benchmark::benchmarks::wiki_vs_grok;
-use kolmox::compress::{brotli::CompressBrotli, Compressor};
+use benchmark::benchmarks::{distance_matrix::heatmap, triangle_inequality, wiki_vs_grok};
+use kolmox::compress::{brotli::CompressBrotli, Compressor, NoCache};
 use std::time::Instant;
 use tracing::info;
 
@@ -24,7 +22,8 @@ fn same_page_with_opts(path: &PathBuf) {
     for quality in &qualities {
         for lg_window_size in 20..=22 {
             let start = Instant::now();
-            let compressor = CompressBrotli::new((*quality) as u32, lg_window_size as u32);
+            let compressor =
+                CompressBrotli::<NoCache>::new((*quality) as u32, lg_window_size as u32);
             let result = compressor.get_distance(&page_html, &page_html);
             let duration = start.elapsed();
 

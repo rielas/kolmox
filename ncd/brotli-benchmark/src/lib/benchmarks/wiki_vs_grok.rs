@@ -1,4 +1,7 @@
-use kolmox::{compress::Compressor, filter::content};
+use kolmox::{
+    compress::{Compressor, NoCache},
+    filter::content,
+};
 use plotly::{
     common::{AxisSide, Title},
     layout::Axis,
@@ -52,7 +55,7 @@ pub fn benchmark(csv_path: &str) -> Plot {
         "Starting distance matrix computation"
     );
 
-    let compressor = kolmox::compress::brotli::CompressBrotli::max_quality();
+    let compressor = kolmox::compress::brotli::CompressBrotli::<NoCache>::max_quality();
 
     let matrix = entries
         .par_iter()
@@ -116,7 +119,7 @@ pub fn get_optimal_opts(
 
     for quality in 1..=11 {
         for lg_window_size in 10..=22 {
-            let compressor = kolmox::compress::brotli::CompressBrotli::new(
+            let compressor = kolmox::compress::brotli::CompressBrotli::<NoCache>::new(
                 quality as u32,
                 lg_window_size as u32,
             );
@@ -162,7 +165,7 @@ mod tests {
 
         #[test]
         fn test_compress_grok_and_wiki() {
-            let compressor = kolmox::compress::brotli::CompressBrotli::recommended();
+            let compressor = kolmox::compress::brotli::CompressBrotli::<NoCache>::recommended();
             let page1_g = read_from_file(
                 "/Users/anatol/Projects/kolmox/dataset/grokvswiki/page/Web_fiction.html",
             );

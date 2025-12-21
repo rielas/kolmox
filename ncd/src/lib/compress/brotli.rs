@@ -1,39 +1,38 @@
-use crate::compress::Compressor;
+use crate::compress::{Cache, Compressor, NoCache};
 
 use std::io::{BufWriter, Write};
 
-const QUALITY: u32 = 5;
-const LG_WINDOW_SIZE: u32 = 21;
-
-pub struct CompressBrotli {
+pub struct CompressBrotli<C: Cache = NoCache> {
     quality: u32,
     lg_window_size: u32,
+    cache: C,
 }
 
-impl CompressBrotli {
+impl<C: Cache> CompressBrotli<C> {
     pub fn new(quality: u32, lg_window_size: u32) -> Self {
         Self {
             quality,
             lg_window_size,
+            cache: C::default(),
         }
     }
 
     pub fn recommended() -> Self {
-        Self {
-            quality: QUALITY,
-            lg_window_size: LG_WINDOW_SIZE,
-        }
+        Self::new(5, 21)
     }
 
     pub fn max_quality() -> Self {
-        Self {
-            quality: 11,
-            lg_window_size: 24,
-        }
+        Self::new(11, 24)
     }
 }
 
-impl Compressor for CompressBrotli {
+impl<C: Cache> Compressor for CompressBrotli<C> {
+    type CacheType = C;
+
+    fn cache(&self) -> &Self::CacheType {
+        &self.cache
+    }
+
     fn get_compressed_size(&self, buf: &str) -> usize {
         let mut out = BufWriter::new(Vec::new());
         let buffer_size = buf.len();
@@ -60,7 +59,7 @@ mod tests {
 
     #[test]
     fn test_compress_brotli() {
-        let compressor = CompressBrotli::recommended();
+        let compressor = CompressBrotli::<NoCache>::recommended();
         let page_html =
             read_from_file("../../../dataset/imdb/list/ls541382956/?ref_=tt_urls_2.html");
         let result = compressor.get_distance(&page_html, &page_html);
