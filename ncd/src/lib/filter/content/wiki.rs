@@ -312,7 +312,7 @@ pub fn get_content(page: &str) -> Option<String> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::filter::tests::read_from_file;
+    use crate::test_helpers::read_test_file as read_from_file;
 
     #[test]
     fn test_extract_content_from_wiki_page() {

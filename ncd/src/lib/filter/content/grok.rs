@@ -318,12 +318,12 @@ fn clean_text(raw: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::filter::tests::read_from_file;
+    use crate::test_helpers::read_test_file as read_from_file;
 
     #[test]
     fn test_extract_content_from_grok_page() {
         let page_html =
-            read_from_file("../../../dataset/grokvswiki/page/Artificial_intelligence.html");
+            read_from_file("../../../dataset/grokvswiki/page/Jordan_Smith_(musician).html");
         let extracted = get_content(&page_html).unwrap();
         assert!(!extracted.contains('<'));
         assert!(!extracted.trim().is_empty());

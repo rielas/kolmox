@@ -1,5 +1,6 @@
 pub mod compress;
 pub mod filter;
+pub mod test_helpers;
 
 use crate::compress::Compressor;
 use filter::HtmlFilter;

@@ -49,10 +49,7 @@ pub fn heatmap(cache: &mut Cache, dataset_name: &str) -> Plot {
     plot
 }
 
-pub fn compute_distance_matrix(
-    cache: &mut Cache,
-    dataset_name: &str,
-) -> ComputeResult {
+pub fn compute_distance_matrix(cache: &mut Cache, dataset_name: &str) -> ComputeResult {
     let dataset = dataset::Dataset::new(get_dataset_path(dataset_name))?;
     let entries = dataset.entries();
     let page_names = entries

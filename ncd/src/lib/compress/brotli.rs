@@ -48,14 +48,8 @@ impl Compressor for CompressBrotli {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::test_helpers::read_test_file as read_from_file;
     use assert_approx_eq::assert_approx_eq;
-
-    fn read_from_file(file_path: &str) -> String {
-        let project_root = env!("CARGO_MANIFEST_DIR");
-        let full_path = std::path::Path::new(project_root).join(file_path);
-        dbg!(&full_path);
-        std::fs::read_to_string(full_path).expect("Failed to read file")
-    }
 
     #[test]
     fn test_compress_brotli() {
