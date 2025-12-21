@@ -24,6 +24,13 @@ impl CompressBrotli {
             lg_window_size: LG_WINDOW_SIZE,
         }
     }
+
+    pub fn max_quality() -> Self {
+        Self {
+            quality: 11,
+            lg_window_size: 24,
+        }
+    }
 }
 
 impl Compressor for CompressBrotli {

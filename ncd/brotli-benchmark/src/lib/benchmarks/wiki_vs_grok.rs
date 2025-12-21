@@ -52,7 +52,7 @@ pub fn benchmark(csv_path: &str) -> Plot {
         "Starting distance matrix computation"
     );
 
-    let compressor = kolmox::compress::brotli::CompressBrotli::new(11, 24);
+    let compressor = kolmox::compress::brotli::CompressBrotli::max_quality();
 
     let matrix = entries
         .par_iter()
