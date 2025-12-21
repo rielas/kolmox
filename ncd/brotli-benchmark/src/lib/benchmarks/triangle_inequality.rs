@@ -41,9 +41,9 @@ pub fn triangle_inequality(cache: &mut Cache, dataset_name: &str) {
 mod tests {
     use crate::{
         benchmarks::get_dataset_path,
+        brotli_filter_attributes,
         dataset::{self},
     };
-    use kolmox::brotli_default_filter_attributes;
 
     #[test]
     fn test_triangle_inequality() {
@@ -58,9 +58,9 @@ mod tests {
         let page_c = dataset
             .get_content("https://www.imdb.com/video/vi998032153/?ref_=ttvg_vi_3")
             .unwrap();
-        let d_ac = brotli_default_filter_attributes(&page_a, &page_c);
-        let d_ab = brotli_default_filter_attributes(&page_a, &page_b);
-        let d_bc = brotli_default_filter_attributes(&page_b, &page_c);
+        let d_ac = brotli_filter_attributes(&page_a, &page_c);
+        let d_ab = brotli_filter_attributes(&page_a, &page_b);
+        let d_bc = brotli_filter_attributes(&page_b, &page_c);
         println!("d_ab = {d_ab}, d_ac = {d_ac}, d_bc = {d_bc}");
         assert!(d_ac + d_bc >= d_ab);
     }

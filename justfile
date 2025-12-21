@@ -3,7 +3,7 @@ build:
     cargo build --release
 
 [working-directory: 'ncd']
-all: build
+all: build tests
     cargo run --release -- --help
 
 [working-directory: 'ncd/brotli-benchmark']

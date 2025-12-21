@@ -1,4 +1,3 @@
-use kolmox::brotli_default_filter_attributes;
 use std::{
     collections::BTreeMap,
     path::PathBuf,
@@ -51,7 +50,7 @@ impl Cache {
             }
         }
 
-        let result = brotli_default_filter_attributes(page_a, page_b);
+        let result = crate::brotli_filter_attributes(page_a, page_b);
         let mut write_guard = self.cache.write().unwrap();
         use std::collections::btree_map::Entry;
 

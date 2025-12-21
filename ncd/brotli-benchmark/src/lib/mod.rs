@@ -1,6 +1,8 @@
 pub mod benchmarks;
 pub mod dataset;
 
+use kolmox::compress::Compressor;
+use kolmox::filter::HtmlFilter;
 use plotly::{
     common::Marker,
     common::Mode,
@@ -9,6 +11,14 @@ use plotly::{
     Layout, Plot, Scatter,
 };
 use std::time::Duration;
+
+pub fn brotli_filter_attributes(page_a: &str, page_b: &str) -> f64 {
+    let stripper = kolmox::filter::filter_attributes::FilterHtmlAttributes::default();
+    let stripped_a = stripper.process_document(page_a);
+    let stripped_b = stripper.process_document(page_b);
+    let compressor = kolmox::compress::brotli::CompressBrotli::recommended();
+    compressor.get_distance(&stripped_a, &stripped_b)
+}
 
 #[derive(Debug, Clone)]
 pub struct BenchmarkResult {
@@ -116,4 +126,31 @@ pub fn point_series(results: &[BenchmarkResult]) -> Plot {
     plot.set_layout(layout);
 
     plot
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use assert_approx_eq::assert_approx_eq;
+
+    #[test]
+    fn test_simple_pages() {
+        let page_a = r#"<html>
+    <head>
+        <title>This title</title>
+    </head>
+    <body>
+        <p class="hello">Hello, world!</p>
+    </body>
+</html>"#;
+        let page_b = r#"<html>
+    <head>
+        <title>A Different Test</title>
+    </head>
+    <body>
+        <p class="hello">Good bye, world!</p>
+    </body>
+</html>"#;
+        assert_approx_eq!(brotli_filter_attributes(page_a, page_b), 0.0, 0.1);
+    }
 }
