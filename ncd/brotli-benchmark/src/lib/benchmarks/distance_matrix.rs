@@ -1,4 +1,5 @@
 use indicatif::ProgressBar;
+use kolmox::compress::Compressor;
 use plotly::{
     common::{AxisSide, Title},
     layout::Axis,
@@ -8,14 +9,14 @@ use rayon::prelude::*;
 use tracing::info;
 
 use crate::benchmarks::get_dataset_path;
-use crate::{benchmarks::Cache, dataset};
+use crate::dataset;
 
 type DistanceMatrix = Vec<Vec<f64>>;
 type ComputeResult = Result<(Vec<String>, DistanceMatrix), Box<dyn std::error::Error>>;
 
-pub fn heatmap(cache: &mut Cache, dataset_name: &str) -> Plot {
-    let (page_names, matrix) =
-        compute_distance_matrix(cache, dataset_name).expect("Failed to compute distance matrix");
+pub fn heatmap<C: Compressor + Sync>(compressor: &C, dataset_name: &str) -> Plot {
+    let (page_names, matrix) = compute_distance_matrix(compressor, dataset_name)
+        .expect("Failed to compute distance matrix");
 
     let heatmap = HeatMap::new(page_names.clone(), page_names.clone(), matrix);
 
@@ -49,7 +50,10 @@ pub fn heatmap(cache: &mut Cache, dataset_name: &str) -> Plot {
     plot
 }
 
-pub fn compute_distance_matrix(cache: &mut Cache, dataset_name: &str) -> ComputeResult {
+pub fn compute_distance_matrix<C: Compressor + Sync>(
+    compressor: &C,
+    dataset_name: &str,
+) -> ComputeResult {
     let dataset = dataset::Dataset::new(get_dataset_path(dataset_name))?;
     let entries = dataset.entries();
     let page_names = entries
@@ -71,7 +75,7 @@ pub fn compute_distance_matrix(cache: &mut Cache, dataset_name: &str) -> Compute
             let row = entries
                 .iter()
                 .map(|entry_b| {
-                    cache.calculate(
+                    compressor.get_distance(
                         &entry_a.get_content().unwrap(),
                         &entry_b.get_content().unwrap(),
                     )

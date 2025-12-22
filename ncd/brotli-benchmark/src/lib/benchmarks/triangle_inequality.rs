@@ -1,7 +1,8 @@
 use super::get_dataset_path;
-use crate::{benchmarks::Cache, dataset};
+use crate::dataset;
+use kolmox::compress::Compressor;
 
-pub fn triangle_inequality(cache: &mut Cache, dataset_name: &str) {
+pub fn triangle_inequality(compressor: &impl Compressor, dataset_name: &str) {
     use itertools::Itertools;
 
     let dataset =
@@ -9,9 +10,9 @@ pub fn triangle_inequality(cache: &mut Cache, dataset_name: &str) {
     let entries = dataset.entries();
 
     for (a, b, c) in entries.iter().tuple_combinations() {
-        let d_ab = cache.calculate(&a.get_content().unwrap(), &b.get_content().unwrap());
-        let d_ac = cache.calculate(&a.get_content().unwrap(), &c.get_content().unwrap());
-        let d_bc = cache.calculate(&b.get_content().unwrap(), &c.get_content().unwrap());
+        let d_ab = compressor.get_distance(&a.get_content().unwrap(), &b.get_content().unwrap());
+        let d_ac = compressor.get_distance(&a.get_content().unwrap(), &c.get_content().unwrap());
+        let d_bc = compressor.get_distance(&b.get_content().unwrap(), &c.get_content().unwrap());
 
         assert!(
             d_ab + d_ac >= d_bc,

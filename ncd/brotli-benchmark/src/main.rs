@@ -1,5 +1,9 @@
 use benchmark::benchmarks::{distance_matrix::heatmap, triangle_inequality, wiki_vs_grok};
-use kolmox::compress::{brotli::CompressBrotli, Compressor, NoCache};
+use kolmox::compress::{
+    brotli::CompressBrotli,
+    cache::{InMemoryCache, NoCache},
+    Compressor,
+};
 use std::time::Instant;
 use tracing::info;
 
@@ -43,7 +47,7 @@ fn main() {
     info!("NCD Brotli Benchmark");
 
     let cli = Cli::parse();
-    let cache = &mut benchmark::benchmarks::Cache::new();
+    let compressor = CompressBrotli::<InMemoryCache>::recommended();
     let default_datasets = ["euronews.com", "amazon", "imdb", "wikipedia"];
 
     match cli.command {
@@ -59,7 +63,7 @@ fn main() {
             };
 
             for ds in list {
-                heatmap(cache, &ds);
+                heatmap(&compressor, &ds);
             }
         }
 
@@ -71,7 +75,7 @@ fn main() {
             };
 
             for ds in list {
-                triangle_inequality::triangle_inequality(cache, &ds);
+                triangle_inequality::triangle_inequality(&compressor, &ds);
             }
         }
 

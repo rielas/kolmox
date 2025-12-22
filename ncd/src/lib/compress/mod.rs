@@ -1,34 +1,9 @@
 pub mod brotli;
+pub mod cache;
+
+use cache::Cache;
 
 use std::cmp;
-
-pub trait Cache: Default + Send + Sync {
-    fn hash_string(&self, s: &str) -> u64;
-
-    fn get_length_by_hash(&self, hash: u64) -> Option<usize>;
-
-    fn store_length_by_hash(&self, hash: u64, length: usize);
-}
-
-#[derive(Clone, Default)]
-pub struct NoCache;
-
-impl Cache for NoCache {
-    fn hash_string(&self, s: &str) -> u64 {
-        use std::collections::hash_map::DefaultHasher;
-        use std::hash::{Hash, Hasher};
-
-        let mut hasher = DefaultHasher::new();
-        s.hash(&mut hasher);
-        hasher.finish()
-    }
-
-    fn get_length_by_hash(&self, _hash: u64) -> Option<usize> {
-        None
-    }
-
-    fn store_length_by_hash(&self, _hash: u64, _length: usize) {}
-}
 
 pub trait Compressor {
     type CacheType: Cache;

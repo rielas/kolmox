@@ -1,8 +1,10 @@
 pub mod benchmarks;
 pub mod dataset;
 
-use kolmox::compress::{Compressor, NoCache};
-use kolmox::filter::HtmlFilter;
+use kolmox::{
+    compress::{cache::NoCache, Compressor},
+    filter::HtmlFilter,
+};
 use plotly::{
     common::Marker,
     common::Mode,

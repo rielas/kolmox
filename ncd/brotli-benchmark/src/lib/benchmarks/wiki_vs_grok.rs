@@ -1,5 +1,8 @@
 use kolmox::{
-    compress::{Compressor, NoCache},
+    compress::{
+        cache::{InMemoryCache, NoCache},
+        Compressor,
+    },
     filter::content,
 };
 use plotly::{
@@ -55,7 +58,7 @@ pub fn benchmark(csv_path: &str) -> Plot {
         "Starting distance matrix computation"
     );
 
-    let compressor = kolmox::compress::brotli::CompressBrotli::<NoCache>::max_quality();
+    let compressor = kolmox::compress::brotli::CompressBrotli::<InMemoryCache>::max_quality();
 
     let matrix = entries
         .par_iter()

@@ -1,5 +1,7 @@
-use crate::compress::{Cache, Compressor, NoCache};
-
+use crate::compress::{
+    cache::{Cache, NoCache},
+    Compressor,
+};
 use std::io::{BufWriter, Write};
 
 pub struct CompressBrotli<C: Cache = NoCache> {
