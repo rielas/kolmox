@@ -6,9 +6,7 @@ use kolmox::{
     filter::HtmlFilter,
 };
 use plotly::{
-    common::Marker,
-    common::Mode,
-    common::Title,
+    common::{Marker, Mode, Title},
     layout::{Axis, AxisType},
     Layout, Plot, Scatter,
 };

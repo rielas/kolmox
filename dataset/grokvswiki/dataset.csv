@@ -27,6 +27,10 @@ url, type
 "https://grokipedia.com/page/Propagation_constant", "grok"
 "https://grokipedia.com/page/2021_Hong_Kong_electoral_changes", "grok"
 "https://grokipedia.com/page/Mount_Lu", "grok"
+"https://grokipedia.com/page/Pradeep_Mahto", "grok"
+"https://grokipedia.com/page/Crying_in_H_Mart", "grok"
+"https://grokipedia.com/page/Tesla_Experimental_Station", "grok"
+"https://grokipedia.com/page/Sports_club", "grok"
 
 "https://en.wikipedia.org/wiki/Smart_TV", "wiki"
 "https://en.wikipedia.org/wiki/Quantum_computing", "wiki"
@@ -56,3 +60,7 @@ url, type
 "https://en.wikipedia.org/wiki/Propagation_constant", "wiki"
 "https://en.wikipedia.org/wiki/2021_Hong_Kong_electoral_changes", "wiki"
 "https://en.wikipedia.org/wiki/Mount_Lu", "wiki"
+"https://en.wikipedia.org/wiki/Pradeep_Mahto", "wiki"
+"https://en.wikipedia.org/wiki/Crying_in_H_Mart", "wiki"
+"https://en.wikipedia.org/wiki/Tesla_Experimental_Station", "wiki"
+"https://en.wikipedia.org/wiki/Sports_club", "wiki"

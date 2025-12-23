@@ -1,14 +1,15 @@
 use kolmox::{
-    compress::{
-        cache::{InMemoryCache, NoCache},
-        Compressor,
-    },
+    compress::{cache::NoCache, Compressor},
     filter::content,
 };
 use plotly::{
-    common::{AxisSide, Title},
-    layout::Axis,
-    HeatMap, Layout, Plot,
+    common::{AxisSide, Marker, Title},
+    histogram::Bins, // or plotly::traces::histogram::Bins if needed
+    layout::{Axis, BarMode},
+    HeatMap,
+    Histogram,
+    Layout,
+    Plot,
 };
 use rayon::prelude::*;
 use tracing::info;
@@ -38,46 +39,17 @@ fn get_content(entry: &dataset::Entry) -> Option<String> {
     txt_content
 }
 
-pub fn benchmark(csv_path: &str) -> Plot {
-    let dataset_dir = std::path::Path::new(csv_path)
-        .parent()
-        .and_then(|p| p.file_name())
-        .and_then(|s| s.to_str())
-        .ok_or("failed to determine dataset directory from csv path")
-        .unwrap();
-
-    let dataset = dataset::Dataset::new(get_dataset_path(dataset_dir)).unwrap();
-
-    let entries = dataset.entries();
-    let page_names = entries
-        .iter()
-        .map(|entry| entry.get_name())
-        .collect::<Vec<String>>();
-    info!(
-        rows = page_names.len(),
-        "Starting distance matrix computation"
-    );
-
-    let compressor = kolmox::compress::brotli::CompressBrotli::<InMemoryCache>::max_quality();
-
-    let matrix = entries
-        .par_iter()
-        .map(|entry_a| {
-            let row = entries
-                .iter()
-                .map(|entry_b| {
-                    let page_a = get_content(entry_a).unwrap();
-                    let page_b = get_content(entry_b).unwrap();
-                    compressor.get_distance(&page_a, &page_b)
-                })
-                .collect::<Vec<f64>>();
-            row
-        })
-        .collect::<Vec<Vec<f64>>>();
-    info!("Finished distance matrix computation");
-
-    let heatmap = HeatMap::new(page_names.clone(), page_names.clone(), matrix);
-
+pub fn heatmap(
+    page_names_wiki: &Vec<String>,
+    page_names_grok: &Vec<String>,
+    matrix: &Vec<Vec<f64>>,
+) -> Plot {
+    let heatmap = HeatMap::new(
+        page_names_wiki.clone(),
+        page_names_grok.clone(),
+        matrix.clone(),
+    )
+    .reverse_scale(true);
     let mut plot = Plot::new();
     plot.add_trace(heatmap);
 
@@ -91,18 +63,109 @@ pub fn benchmark(csv_path: &str) -> Plot {
                 .side(AxisSide::Bottom)
                 .auto_margin(true)
                 .tick_angle(-90.0)
-                .tick_text(page_names.clone()),
+                .tick_text(page_names_wiki.clone()),
         )
         .y_axis(
             Axis::new()
                 .title("Page B")
                 .scale_anchor("x")
                 .auto_margin(true)
-                .tick_text(page_names.clone()),
+                .tick_text(page_names_grok.clone()),
         );
     plot.set_layout(layout);
 
     plot
+}
+
+pub fn histogram(matrix: &Vec<Vec<f64>>) -> Plot {
+    let mut off_values = Vec::new();
+    let mut diag_values = Vec::new();
+
+    for i in 0..matrix.len() {
+        for j in i..matrix[i].len() {
+            let v = matrix[i][j];
+
+            if i == j {
+                diag_values.push(v);
+            } else {
+                off_values.push(v);
+            }
+        }
+    }
+
+    let min = 0.0;
+    let max = 1.0;
+    let bins = (max - min) / 100.0;
+
+    let hist_off = Histogram::new(off_values)
+        .x_bins(Bins::new(min, max, bins))
+        .name("Non related Subjects")
+        .marker(Marker::new().color("lightgray"))
+        .opacity(0.6);
+
+    let hist_diag = Histogram::new(diag_values)
+        .x_bins(Bins::new(min, max, bins))
+        .name("Same Subjects")
+        .marker(Marker::new().color("red"))
+        .opacity(0.9);
+
+    let mut plot = Plot::new();
+    plot.add_trace(hist_off);
+    plot.add_trace(hist_diag);
+
+    let layout = Layout::new()
+        .title("Distance frequency histogram".to_string())
+        .bar_mode(BarMode::Overlay)
+        .x_axis(Axis::new().title(Title::with_text("Distance")))
+        .y_axis(Axis::new().title("Frequency"));
+    plot.set_layout(layout);
+
+    plot
+}
+
+pub fn compute_distance_matrix<C: Compressor + Sync>(
+    dataset_dir: &str,
+    compressor: &C,
+) -> (Vec<String>, Vec<String>, Vec<Vec<f64>>) {
+    let dataset = dataset::Dataset::new(get_dataset_path(dataset_dir)).unwrap();
+    let entries = dataset.entries();
+    let entries_wiki = entries
+        .into_iter()
+        .filter(|e| e.page_type == "wiki")
+        .cloned()
+        .collect::<Vec<dataset::Entry>>();
+    let page_names_wiki = entries_wiki
+        .iter()
+        .map(|entry| entry.get_name())
+        .collect::<Vec<String>>();
+    let entries_grok = entries
+        .into_iter()
+        .filter(|e| e.page_type == "grok")
+        .cloned()
+        .collect::<Vec<dataset::Entry>>();
+    let page_names_grok = entries_grok
+        .iter()
+        .map(|entry| entry.get_name())
+        .collect::<Vec<String>>();
+
+    let matrix = entries_wiki
+        .par_iter()
+        .map(|entry_wiki| {
+            let row = entries_grok
+                .iter()
+                .map(|entry_grok| {
+                    let page_wiki = get_content(entry_wiki).unwrap();
+                    let page_grok = get_content(entry_grok).unwrap();
+                    compressor.get_distance(&page_wiki, &page_grok)
+                })
+                .collect::<Vec<f64>>();
+            row
+        })
+        .collect::<Vec<Vec<f64>>>();
+
+    info!("Finished distance matrix computation");
+
+    (page_names_wiki, page_names_grok, matrix)
 }
 
 pub fn get_optimal_opts(

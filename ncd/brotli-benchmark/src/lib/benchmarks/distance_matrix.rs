@@ -1,5 +1,5 @@
 use indicatif::ProgressBar;
-use kolmox::compress::Compressor;
+use kolmox::{compress::Compressor, filter::HtmlFilter};
 use plotly::{
     common::{AxisSide, Title},
     layout::Axis,
@@ -18,7 +18,7 @@ pub fn heatmap<C: Compressor + Sync>(compressor: &C, dataset_name: &str) -> Plot
     let (page_names, matrix) = compute_distance_matrix(compressor, dataset_name)
         .expect("Failed to compute distance matrix");
 
-    let heatmap = HeatMap::new(page_names.clone(), page_names.clone(), matrix);
+    let heatmap = HeatMap::new(page_names.clone(), page_names.clone(), matrix).reverse_scale(true);
 
     let mut plot = Plot::new();
     plot.add_trace(heatmap);
@@ -68,6 +68,7 @@ pub fn compute_distance_matrix<C: Compressor + Sync>(
 
     let pb = ProgressBar::new(page_names.len() as u64);
     pb.set_message("computing rows");
+    let stripper = kolmox::filter::filter_attributes::FilterHtmlAttributes::default();
 
     let matrix = entries
         .par_iter()
@@ -75,10 +76,11 @@ pub fn compute_distance_matrix<C: Compressor + Sync>(
             let row = entries
                 .iter()
                 .map(|entry_b| {
-                    compressor.get_distance(
-                        &entry_a.get_content().unwrap(),
-                        &entry_b.get_content().unwrap(),
-                    )
+                    let page_a = entry_a.get_content().unwrap();
+                    let page_b = entry_b.get_content().unwrap();
+                    let page_a = stripper.process_document(&page_a);
+                    let page_b = stripper.process_document(&page_b);
+                    compressor.get_distance(&page_a, &page_b)
                 })
                 .collect::<Vec<f64>>();
             pb.inc(1);

@@ -80,7 +80,8 @@ fn main() {
         }
 
         Commands::WikiVsGrok { csv } => {
-            wiki_vs_grok::benchmark(&csv);
+            let (labels, matrix) = wiki_vs_grok::compute_distance_matrix(&csv, &compressor);
+            wiki_vs_grok::heatmap(&labels, &matrix);
         }
         Commands::OptimalOpts {
             wiki1,
