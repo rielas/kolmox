@@ -13,8 +13,25 @@ pub trait Compressor {
 
     fn get_distance(&self, page_a: &str, page_b: &str) -> f64 {
         let length_combined = self.get_combined_length(page_a, page_b);
-        let a_compressed = self.get_compressed_size(page_a);
-        let b_compressed = self.get_compressed_size(page_b);
+
+        let hash_a = self.cache().hash_string(page_a);
+
+        let a_compressed = if let Some(cached) = self.cache().get_length_by_hash(hash_a) {
+            cached
+        } else {
+            let size = self.get_compressed_size(page_a);
+            self.cache().store_length_by_hash(hash_a, size);
+            size
+        };
+
+        let hash_b = self.cache().hash_string(page_b);
+        let b_compressed = if let Some(cached) = self.cache().get_length_by_hash(hash_b) {
+            cached
+        } else {
+            let size = self.get_compressed_size(page_b);
+            self.cache().store_length_by_hash(hash_b, size);
+            size
+        };
 
         let min = cmp::min(a_compressed, b_compressed);
         let max = cmp::max(a_compressed, b_compressed);
