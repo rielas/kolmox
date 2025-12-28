@@ -1,5 +1,6 @@
 pub mod brotli;
 pub mod cache;
+pub mod zstd;
 
 use cache::Cache;
 
