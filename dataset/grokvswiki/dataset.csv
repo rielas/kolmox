@@ -31,6 +31,9 @@ url, type
 "https://grokipedia.com/page/Crying_in_H_Mart", "grok"
 "https://grokipedia.com/page/Tesla_Experimental_Station", "grok"
 "https://grokipedia.com/page/Sports_club", "grok"
+"https://grokipedia.com/page/Grana_Padano", "grok"
+"https://grokipedia.com/page/Sanatan_Dharma_College", "grok"
+"https://grokipedia.com/page/halophila", "grok"
 
 "https://en.wikipedia.org/wiki/Smart_TV", "wiki"
 "https://en.wikipedia.org/wiki/Quantum_computing", "wiki"
@@ -64,3 +67,6 @@ url, type
 "https://en.wikipedia.org/wiki/Crying_in_H_Mart", "wiki"
 "https://en.wikipedia.org/wiki/Tesla_Experimental_Station", "wiki"
 "https://en.wikipedia.org/wiki/Sports_club", "wiki"
+"https://en.wikipedia.org/wiki/Grana_Padano", "wiki"
+"https://en.wikipedia.org/wiki/Sanatan_Dharma_College", "wiki"
+"https://en.wikipedia.org/wiki/Halophila", "wiki"
