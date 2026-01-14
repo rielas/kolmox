@@ -1,4 +1,7 @@
-use benchmark::benchmarks::{distance_matrix::heatmap, triangle_inequality, wiki_vs_grok};
+use benchmarks::{
+    bench_tests::{distance_matrix::heatmap, triangle_inequality, wiki_vs_grok},
+    read_from_file,
+};
 use kolmox::compress::{
     brotli::CompressBrotli,
     cache::{InMemoryCache, NoCache},
@@ -8,15 +11,8 @@ use std::time::Instant;
 use tracing::info;
 
 use clap::{Parser, Subcommand};
-use std::path::PathBuf;
 
-fn read_from_file(file_path: &PathBuf) -> String {
-    let project_root = env!("CARGO_MANIFEST_DIR");
-    let full_path = std::path::Path::new(project_root).join(file_path);
-    std::fs::read_to_string(full_path).expect("Failed to read file")
-}
-
-fn same_page_with_opts(path: &PathBuf) {
+fn same_page_with_opts(path: &str) {
     info!("same-page benchmark (opts)");
 
     let page_html = read_from_file(path);
@@ -80,8 +76,9 @@ fn main() {
         }
 
         Commands::WikiVsGrok { csv } => {
-            let (labels, matrix) = wiki_vs_grok::compute_distance_matrix(&csv, &compressor);
-            wiki_vs_grok::heatmap(&labels, &matrix);
+            let (labels_wiki, labels_grok, matrix) =
+                wiki_vs_grok::compute_distance_matrix(&csv, &compressor);
+            wiki_vs_grok::heatmap(&labels_wiki, &labels_grok, &matrix);
         }
         Commands::OptimalOpts {
             wiki1,
@@ -113,7 +110,7 @@ struct Cli {
 #[derive(Subcommand)]
 enum Commands {
     SamePage {
-        file: PathBuf,
+        file: String,
     },
 
     Heatmap {
@@ -132,12 +129,12 @@ enum Commands {
 
     OptimalOpts {
         /// Wikipedia page (path relative to project root)
-        wiki1: PathBuf,
+        wiki1: String,
         /// Grok page (path relative to project root)
-        grok1: PathBuf,
+        grok1: String,
         /// Second Wikipedia page
-        wiki2: PathBuf,
+        wiki2: String,
         /// Second Grok page
-        grok2: PathBuf,
+        grok2: String,
     },
 }

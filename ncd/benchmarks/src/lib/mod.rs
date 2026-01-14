@@ -1,4 +1,4 @@
-pub mod benchmarks;
+pub mod bench_tests;
 pub mod dataset;
 
 use kolmox::{
@@ -10,7 +10,13 @@ use plotly::{
     layout::{Axis, AxisType},
     Layout, Plot, Scatter,
 };
-use std::time::Duration;
+use std::{path::PathBuf, time::Duration};
+
+pub fn read_from_file(file_path: &str) -> String {
+    let project_root = env!("CARGO_MANIFEST_DIR");
+    let full_path = std::path::Path::new(project_root).join(PathBuf::from(file_path));
+    std::fs::read_to_string(full_path).expect("Failed to read file")
+}
 
 pub fn brotli_filter_attributes(page_a: &str, page_b: &str) -> f64 {
     let stripper = kolmox::filter::filter_attributes::FilterHtmlAttributes::default();
