@@ -1,2 +1,6 @@
-
 .DS_Store
+
+# Python
+__pycache__/
+*.py[oc]
+.venv/

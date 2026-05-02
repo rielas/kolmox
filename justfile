@@ -18,6 +18,12 @@ format: format-benchmark
 tests: benchmark-tests
     cargo test --release
 
+[working-directory: 'fetcher']
+test-python:
+    uv run pytest
+
+test-all: tests test-python
+
 [working-directory: 'ncd/benchmarks']
 benchmark-tests:
     cargo test --release

@@ -11,6 +11,7 @@ pub struct CompressZstd<C: Cache = NoCache> {
 
 impl<C: Cache> CompressZstd<C> {
     pub fn new(quality: u32) -> Self {
+        assert!(quality <= 22, "zstd quality must be 0–22, got {quality}");
         Self {
             quality,
             cache: C::default(),
@@ -37,9 +38,14 @@ impl<C: Cache> Compressor for CompressZstd<C> {
         let mut out = Vec::new();
 
         {
-            let mut encoder = zstd::stream::Encoder::new(&mut out, self.quality as i32).unwrap();
-            encoder.write_all(buf.as_bytes()).unwrap();
-            encoder.finish().unwrap();
+            let mut encoder = zstd::stream::Encoder::new(&mut out, self.quality as i32)
+                .expect("quality validated in constructor; zstd accepts 0–22");
+            encoder
+                .write_all(buf.as_bytes())
+                .expect("write to Vec<u8> is infallible");
+            encoder
+                .finish()
+                .expect("finalizing in-memory zstd encoder is infallible");
         }
 
         out.len()

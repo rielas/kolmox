@@ -46,10 +46,14 @@ impl<C: Cache> Compressor for CompressBrotli<C> {
                 self.quality,
                 self.lg_window_size,
             );
-            writer.write_all(buf.as_bytes()).unwrap();
+            writer
+                .write_all(buf.as_bytes())
+                .expect("write to Vec<u8> is infallible");
         }
 
-        out.into_inner().unwrap().len()
+        out.into_inner()
+            .expect("BufWriter flush to Vec<u8> is infallible")
+            .len()
     }
 }
 
