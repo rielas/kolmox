@@ -54,12 +54,12 @@ pub fn heatmap(
     plot.add_trace(heatmap);
 
     let layout = Layout::new()
-        .title("Normalized Compression Distance for wikipedia vs grokpedia".to_string())
+        .title("NCD Heatmap: Wikipedia vs. Grokpedia".to_string())
         .width(800)
         .height(800)
         .x_axis(
             Axis::new()
-                .title(Title::with_text("Page A"))
+                .title(Title::with_text("Wikipedia Article"))
                 .side(AxisSide::Bottom)
                 .auto_margin(true)
                 .tick_angle(-90.0)
@@ -67,7 +67,7 @@ pub fn heatmap(
         )
         .y_axis(
             Axis::new()
-                .title("Page B")
+                .title("Grokpedia Article")
                 .scale_anchor("x")
                 .auto_margin(true)
                 .tick_text(page_names_grok.clone()),
@@ -99,7 +99,7 @@ pub fn histogram(matrix: &Vec<Vec<f64>>) -> Plot {
 
     let hist_off = Histogram::new(off_values)
         .x_bins(Bins::new(min, max, bins))
-        .name("Non related Subjects")
+        .name("Different Subjects")
         .marker(Marker::new().color("lightgray"))
         .opacity(0.6);
 
@@ -114,7 +114,7 @@ pub fn histogram(matrix: &Vec<Vec<f64>>) -> Plot {
     plot.add_trace(hist_diag);
 
     let layout = Layout::new()
-        .title("Distance frequency histogram".to_string())
+        .title("NCD Score Distribution".to_string())
         .bar_mode(BarMode::Overlay)
         .x_axis(Axis::new().title(Title::with_text("Distance")))
         .y_axis(Axis::new().title("Frequency"));

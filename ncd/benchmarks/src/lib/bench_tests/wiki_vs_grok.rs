@@ -52,12 +52,12 @@ pub fn heatmap(
     plot.add_trace(heatmap);
 
     let layout = Layout::new()
-        .title("Normalized Compression Distance for wikipedia vs grokpedia".to_string())
+        .title("NCD Heatmap: Wikipedia vs. Grokpedia".to_string())
         .width(800)
         .height(800)
         .x_axis(
             Axis::new()
-                .title(Title::with_text("Wikipedia Pages"))
+                .title(Title::with_text("Wikipedia Article"))
                 .side(AxisSide::Bottom)
                 .auto_margin(true)
                 .tick_angle(-90.0)
@@ -65,7 +65,7 @@ pub fn heatmap(
         )
         .y_axis(
             Axis::new()
-                .title("Grokpedia Pages")
+                .title(Title::with_text("Grokpedia Article"))
                 .scale_anchor("x")
                 .auto_margin(true)
                 .tick_text(page_names_grok.clone()),
@@ -98,13 +98,13 @@ pub fn histogram(matrix: &Vec<Vec<f64>>) -> Plot {
 
     let hist_nonrelated = Histogram::new(nonrelated_pages.clone())
         .x_bins(Bins::new(min, max, bin_size))
-        .name("Nonrelated Subject Pages")
+        .name("Different Subjects")
         .marker(Marker::new().color("lightgray"))
         .opacity(0.6);
 
     let hist_related = Histogram::new(related_pages.clone())
         .x_bins(Bins::new(min, max, bin_size))
-        .name("Same Subject Pages")
+        .name("Same Subject")
         .marker(Marker::new().color("red"))
         .opacity(0.9);
 
@@ -131,13 +131,13 @@ pub fn histogram(matrix: &Vec<Vec<f64>>) -> Plot {
     let vline_nonrelated =
         Scatter::new(vec![med_nonrelated, med_nonrelated], vec![0.0, LINE_HEIGHT])
             .mode(Mode::Lines)
-            .name("Nonrelated Subject Pages median")
+            .name("Different Subjects median")
             .line(Line::new().color("black").width(1.0).dash(DashType::Dash))
             .opacity(0.6);
 
     let vline_related = Scatter::new(vec![med_related, med_related], vec![0.0, LINE_HEIGHT])
         .mode(Mode::Lines)
-        .name("Same Subject Pages median")
+        .name("Same Subject median")
         .line(Line::new().color("red").width(1.0).dash(DashType::Dash))
         .opacity(0.6);
 
@@ -160,7 +160,7 @@ pub fn histogram(matrix: &Vec<Vec<f64>>) -> Plot {
     plot.add_trace(label_related);
 
     let layout = Layout::new()
-        .title("Distance frequency histogram".to_string())
+        .title("NCD Score Distribution".to_string())
         .bar_mode(BarMode::Overlay)
         .x_axis(Axis::new().title(Title::with_text("Distance")))
         .y_axis(Axis::new().title("Frequency"));
