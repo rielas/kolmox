@@ -1,5 +1,5 @@
 use benchmarks::{
-    bench_tests::{distance_matrix::heatmap, triangle_inequality, wiki_vs_grok},
+    bench_tests::{bk_tree, distance_matrix::heatmap, triangle_inequality, wiki_vs_grok},
     read_from_file,
 };
 use kolmox::compress::{
@@ -80,6 +80,22 @@ fn main() {
                 wiki_vs_grok::compute_distance_matrix(&csv, &compressor);
             wiki_vs_grok::heatmap(&labels_wiki, &labels_grok, &matrix);
         }
+        Commands::BkTree {
+            datasets,
+            tolerance,
+        } => {
+            let list: Vec<String> = if datasets.is_empty() {
+                default_datasets.iter().map(|s| s.to_string()).collect()
+            } else {
+                datasets
+            };
+
+            for ds in list {
+                let compressor = CompressBrotli::<InMemoryCache>::recommended();
+                bk_tree::bk_tree(compressor, &ds, tolerance);
+            }
+        }
+
         Commands::OptimalOpts {
             wiki1,
             grok1,
@@ -125,6 +141,17 @@ enum Commands {
 
     WikiVsGrok {
         csv: String,
+    },
+
+    /// Compare brute-force linear search vs BK tree search over NCD distances.
+    BkTree {
+        /// Datasets to run against (defaults to euronews.com, amazon, imdb, wikipedia)
+        #[arg(value_parser)]
+        datasets: Vec<String>,
+
+        /// Search radius in NCD units (0.0..1.0)
+        #[arg(long, default_value_t = 0.25)]
+        tolerance: f64,
     },
 
     OptimalOpts {

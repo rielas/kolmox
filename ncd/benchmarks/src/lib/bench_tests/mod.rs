@@ -1,5 +1,6 @@
 use std::path::PathBuf;
 
+pub mod bk_tree;
 pub mod distance_matrix;
 pub mod triangle_inequality;
 pub mod wiki_vs_grok;
