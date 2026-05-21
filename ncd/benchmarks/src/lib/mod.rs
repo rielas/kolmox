@@ -8,9 +8,51 @@ use kolmox::{
 use plotly::{
     common::{Marker, Mode, Title},
     layout::{Axis, AxisType},
-    Layout, Plot, Scatter,
+    ImageFormat, Layout, Plot, Scatter,
 };
 use std::{path::PathBuf, time::Duration};
+
+pub struct DisplayablePlot {
+    plot: Plot,
+    width: usize,
+    height: usize,
+}
+
+impl DisplayablePlot {
+    pub fn new(plot: Plot, width: usize, height: usize) -> Self {
+        Self { plot, width, height }
+    }
+
+    pub fn with_size(mut self, width: usize, height: usize) -> Self {
+        self.width = width;
+        self.height = height;
+        self
+    }
+
+    pub fn into_inner(self) -> Plot {
+        self.plot
+    }
+
+    pub fn evcxr_display(&self) {
+        self.plot.evcxr_display();
+
+        match self
+            .plot
+            .to_base64(ImageFormat::PNG, self.width, self.height, 1.0)
+        {
+            Ok(b64) => {
+                println!("EVCXR_BEGIN_CONTENT image/png\n{b64}\nEVCXR_END_CONTENT")
+            }
+            Err(e) => eprintln!("static image export failed: {e}"),
+        }
+    }
+}
+
+impl From<DisplayablePlot> for Plot {
+    fn from(d: DisplayablePlot) -> Self {
+        d.plot
+    }
+}
 
 pub fn read_from_file(file_path: &str) -> String {
     let project_root = env!("CARGO_MANIFEST_DIR");
@@ -34,7 +76,7 @@ pub struct BenchmarkResult {
     pub duration: Duration,
 }
 
-pub fn point_series(results: &[BenchmarkResult]) -> Plot {
+pub fn point_series(results: &[BenchmarkResult]) -> DisplayablePlot {
     let mut x0: Vec<f64> = Vec::new();
     let mut y0: Vec<f64> = Vec::new();
     let mut t0: Vec<String> = Vec::new();
@@ -131,7 +173,7 @@ pub fn point_series(results: &[BenchmarkResult]) -> Plot {
 
     plot.set_layout(layout);
 
-    plot
+    DisplayablePlot::new(plot, 1000, 700)
 }
 
 #[cfg(test)]

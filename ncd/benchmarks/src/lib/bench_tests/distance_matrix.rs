@@ -10,11 +10,12 @@ use tracing::info;
 
 use crate::bench_tests::get_dataset_path;
 use crate::dataset;
+use crate::DisplayablePlot;
 
 type DistanceMatrix = Vec<Vec<f64>>;
 type ComputeResult = Result<(Vec<String>, DistanceMatrix), Box<dyn std::error::Error>>;
 
-pub fn heatmap<C: Compressor + Sync>(compressor: &C, dataset_name: &str) -> Plot {
+pub fn heatmap<C: Compressor + Sync>(compressor: &C, dataset_name: &str) -> DisplayablePlot {
     let (page_names, matrix) = compute_distance_matrix(compressor, dataset_name)
         .expect("Failed to compute distance matrix");
 
@@ -47,7 +48,7 @@ pub fn heatmap<C: Compressor + Sync>(compressor: &C, dataset_name: &str) -> Plot
         );
     plot.set_layout(layout);
 
-    plot
+    DisplayablePlot::new(plot, 800, 800)
 }
 
 pub fn compute_distance_matrix<C: Compressor + Sync>(

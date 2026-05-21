@@ -14,6 +14,7 @@ use tracing::info;
 
 use crate::bench_tests::get_dataset_path;
 use crate::dataset;
+use crate::DisplayablePlot;
 
 fn get_content(entry: &dataset::Entry) -> Option<String> {
     let content = std::fs::read_to_string(&entry.filepath).ok()?;
@@ -41,7 +42,7 @@ pub fn heatmap(
     page_names_wiki: &Vec<String>,
     page_names_grok: &Vec<String>,
     matrix: &Vec<Vec<f64>>,
-) -> Plot {
+) -> DisplayablePlot {
     let heatmap = HeatMap::new(
         page_names_wiki.clone(),
         page_names_grok.clone(),
@@ -72,10 +73,10 @@ pub fn heatmap(
         );
     plot.set_layout(layout);
 
-    plot
+    DisplayablePlot::new(plot, 800, 800)
 }
 
-pub fn histogram(matrix: &Vec<Vec<f64>>) -> Plot {
+pub fn histogram(matrix: &Vec<Vec<f64>>) -> DisplayablePlot {
     let mut related_pages = Vec::new();
     let mut nonrelated_pages = Vec::new();
 
@@ -166,7 +167,7 @@ pub fn histogram(matrix: &Vec<Vec<f64>>) -> Plot {
         .y_axis(Axis::new().title("Frequency"));
     plot.set_layout(layout);
 
-    plot
+    DisplayablePlot::new(plot, 1000, 600)
 }
 
 pub fn compute_distance_matrix<C: Compressor + Sync>(
