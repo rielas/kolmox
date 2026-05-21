@@ -43,3 +43,7 @@ fetch-wikivsgrok:
 [working-directory: 'ncd/benchmarks']
 optimal-opts:
     cargo run --bin benchmarks --release -- optimal-opts ../../dataset/grokvswiki/wiki/Web_fiction.html ../../dataset/grokvswiki/page/Web_fiction.html ../../dataset/grokvswiki/wiki/Arra_San_Agustin.html ../../dataset/grokvswiki/page/Arra_San_Agustin.html
+
+[working-directory: 'fetcher']
+fetch-imdb:
+    uv run main.py ../dataset/imdb/
