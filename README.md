@@ -1,8 +1,21 @@
-# Kolmox - Normalized Compression Distance in Rust
+# Kolmox — HTML Structural Similarity in Rust
 
-Kolmox is intended to measure the Normalized Compression Distance (NCD) between text documents using advanced compression algorithms like Brotli and Zstd. It was born as an effective way of measuring structure similarity between HTML pages, alternative to XML diff approach. It works faster and more accurately than existing alternatives like [html-similarity](https://pypi.org/project/html-similarity/) or [niteru](https://github.com/ninoseki/niteru).
+Kolmox measures **Normalized Compression Distance (NCD)** between text documents using Brotli or Zstd compression. It was built to compare HTML page structure — faster and more accurate than [html-similarity](https://pypi.org/project/html-similarity/) or [niteru](https://github.com/ninoseki/niteru), without the brittleness of XML diff.
 
-# Distance Calculation
+## Features
+
+- Brotli and Zstd backends with tunable quality/speed tradeoffs
+- In-memory caching for batch comparisons (no redundant compression)
+- HTML-aware filters to strip noise before comparison
+
+## Installation
+
+```toml
+[dependencies]
+kolmox = "0.1.2"
+```
+
+## Distance Formula
 
 Normalized Compression Distance is calculated as:
 
