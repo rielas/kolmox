@@ -3,6 +3,7 @@ use std::path::PathBuf;
 pub mod bk_tree;
 pub mod distance_matrix;
 pub mod triangle_inequality;
+pub mod vp_tree;
 pub mod wiki_vs_grok;
 
 pub fn get_dataset_path(directory: &str) -> PathBuf {

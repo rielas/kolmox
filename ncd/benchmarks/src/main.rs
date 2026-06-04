@@ -143,14 +143,14 @@ enum Commands {
         csv: String,
     },
 
-    /// Compare brute-force linear search vs BK tree search over NCD distances.
+    /// Compare brute-force linear search vs BK tree vs VP tree over NCD distances.
     BkTree {
         /// Datasets to run against (defaults to euronews.com, amazon, imdb, wikipedia)
         #[arg(value_parser)]
         datasets: Vec<String>,
 
         /// Search radius in NCD units (0.0..1.0)
-        #[arg(long, default_value_t = 0.25)]
+        #[arg(long, default_value_t = 0.01)]
         tolerance: f64,
     },
 
