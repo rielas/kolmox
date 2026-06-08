@@ -1,5 +1,9 @@
 [workspace]
 members = ["src/lib", "benchmarks"]
+# `py` is a PyO3 extension built via maturin, not part of the normal
+# cargo workspace build (avoids needing a Python interpreter / macOS link flags
+# for `just build` and `just tests`).
+exclude = ["py"]
 resolver = "2"
 
 [profile.dev]

@@ -1,0 +1,4 @@
+{
+  "python.defaultInterpreterPath": "${workspaceFolder}/ncd/py/.venv/bin/python",
+  "python.venvFolders": ["ncd/py"]
+}

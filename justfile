@@ -47,3 +47,12 @@ optimal-opts:
 [working-directory: 'fetcher']
 fetch-imdb:
     uv run main.py ../dataset/imdb/
+
+# Build the Python NCD bindings + notebook env into ncd/bindings/.venv,
+# and register a "Python (ncd)" Jupyter kernel for ncd/notebooks/mds.ipynb.
+[working-directory: 'ncd/py']
+python-bindings:
+    uv venv --python 3.13 --clear .venv
+    uv pip install --python .venv/bin/python maturin scikit-learn plotly pandas numpy ipykernel nbformat nbconvert
+    env VIRTUAL_ENV=.venv .venv/bin/maturin develop --release
+    .venv/bin/python -m ipykernel install --user --name ncd --display-name "Python (ncd)"
