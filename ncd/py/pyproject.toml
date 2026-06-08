@@ -1,0 +1,27 @@
+[build-system]
+requires = ["maturin>=1.7,<2.0"]
+build-backend = "maturin"
+
+[project]
+name = "ncd"
+version = "0.1.0"
+description = "Python bindings for the kolmox Normalized Compression Distance library"
+requires-python = ">=3.9"
+classifiers = ["Programming Language :: Rust"]
+
+# Dependencies needed by the analysis notebooks that consume this module.
+[dependency-groups]
+notebook = [
+    "scikit-learn>=1.4",
+    "plotly>=5.20",
+    "pandas>=2",
+    "numpy>=2",
+    "ipykernel>=6.29",
+    "nbformat>=5",
+    "nbconvert>=7",
+]
+
+[tool.maturin]
+# The compiled module is named `ncd`; no extra Python source directory.
+module-name = "ncd"
+manifest-path = "Cargo.toml"
