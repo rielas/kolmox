@@ -12,6 +12,10 @@ pub trait Compressor {
     fn cache(&self) -> &Self::CacheType;
 
     fn get_distance(&self, page_a: &str, page_b: &str) -> f64 {
+        if page_a == page_b {
+            return 0.0;
+        }
+
         let length_combined = self.get_combined_length(page_a, page_b);
 
         let hash_a = self.cache().hash_string(page_a);
