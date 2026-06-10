@@ -1,10 +1,13 @@
 use benchmarks::{
-    bench_tests::{bk_tree, distance_matrix::heatmap, triangle_inequality, wiki_vs_grok},
+    bench_tests::{
+        bk_tree, distance_matrix::heatmap, mismatches, triangle_inequality, wiki_vs_grok,
+    },
     read_from_file,
 };
 use kolmox::compress::{
     brotli::CompressBrotli,
     cache::{InMemoryCache, NoCache},
+    zstd::CompressZstd,
     Compressor,
 };
 use std::time::Instant;
@@ -96,6 +99,19 @@ fn main() {
             }
         }
 
+        Commands::Mismatches { datasets } => {
+            let list: Vec<String> = if datasets.is_empty() {
+                default_datasets.iter().map(|s| s.to_string()).collect()
+            } else {
+                datasets
+            };
+
+            for ds in list {
+                let compressor = CompressZstd::<InMemoryCache>::recommended();
+                mismatches::mismatches(&compressor, &ds);
+            }
+        }
+
         Commands::OptimalOpts {
             wiki1,
             grok1,
@@ -152,6 +168,13 @@ enum Commands {
         /// Search radius in NCD units (0.0..1.0)
         #[arg(long, default_value_t = 0.25)]
         tolerance: f64,
+    },
+
+    /// Count 1-NN category mismatches per page and per category (zstd, recommended params).
+    Mismatches {
+        /// Datasets to run against (defaults to euronews.com, amazon, imdb, wikipedia)
+        #[arg(value_parser)]
+        datasets: Vec<String>,
     },
 
     OptimalOpts {

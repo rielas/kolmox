@@ -20,7 +20,11 @@ pub struct DisplayablePlot {
 
 impl DisplayablePlot {
     pub fn new(plot: Plot, width: usize, height: usize) -> Self {
-        Self { plot, width, height }
+        Self {
+            plot,
+            width,
+            height,
+        }
     }
 
     pub fn with_size(mut self, width: usize, height: usize) -> Self {
